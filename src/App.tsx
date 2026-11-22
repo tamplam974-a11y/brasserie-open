@@ -98,57 +98,80 @@ function Refractometer() {
 }
 
 function Dilution() {
+  // Dilution : baisser la densité en ajoutant de l’eau
   const [v, setV] = useState('20');
   const [sg, setSg] = useState('1,060');
   const [t, setT] = useState('1,050');
   const [v2, setV2] = useState('25');
+  // Concentration : monter la densité par évaporation ou en ajoutant du sucre
+  const [cv, setCv] = useState('20');
+  const [csg, setCsg] = useState('1,050');
+  const [ct, setCt] = useState('1,060');
   const [kind, setKind] = useState<SugarKind>('saccharose');
   const [V, SG, T, V2] = [num(v), num(sg), num(t), num(v2)];
-  const dil = positive(V, SG - 1, T - 1) ? dilutionToTargetGravity(V, SG, T) : null;
-  const water = dil?.waterToAddL ?? 0;
-  const sugarAdd = positive(V, SG - 1, T - 1) ? sugarToReachGravity(V, SG, T, kind) : null;
+  const [CV, CSG, CT] = [num(cv), num(csg), num(ct)];
+  const dil = positive(V, SG - 1, T - 1) && T < SG ? dilutionToTargetGravity(V, SG, T) : null;
+  const concOk = positive(CV, CSG - 1, CT - 1) && CT > CSG;
+  const evap = concOk ? dilutionToTargetGravity(CV, CSG, CT) : null;
+  const sugarAdd = concOk ? sugarToReachGravity(CV, CSG, CT, kind) : null;
   return (
-    <section>
-      <h2>Dilution et concentration</h2>
-      <p>Volume à atteindre pour une densité cible, en conservant la même quantité de sucre.</p>
-      <Field label="Volume actuel" value={v} onChange={setV} unit="L" />
-      <Field label="Densité actuelle" value={sg} onChange={setSg} />
-      <Field label="Densité cible" value={t} onChange={setT} />
-      {dil ? (
-        <>
-          <Result label="Volume final" value={`${fmt(dil.finalVolumeL, 1)} L`} />
-          <Result
-            label={water >= 0 ? 'Eau à ajouter' : 'Volume à évaporer'}
-            value={`${fmt(Math.abs(water), 1)} L`}
-          />
-        </>
-      ) : (
-        <Hint />
-      )}
-      <h3>Concentrer en ajoutant du sucre</h3>
-      <p className="hint">Pour monter la densité sans évaporer : mêmes volume et densités que ci-dessus, avec une densité visée plus haute.</p>
-      <label className="field">
-        <span>Sucre ajouté</span>
-        <select value={kind} onChange={(e) => setKind(e.target.value as SugarKind)}>
-          {Object.entries(SUGARS).map(([key, v]) => <option key={key} value={key}>{v.label}</option>)}
-        </select>
-      </label>
-      {sugarAdd ? (
-        <>
-          <Result label="Sucre à ajouter" value={`${fmt(sugarAdd.grams, 0)} g`} />
-          <Result label="Volume final" value={`${fmt(sugarAdd.finalVolumeL, 2)} L`} />
-        </>
-      ) : (
-        <p className="hint">Visez une densité plus haute que la densité actuelle.</p>
-      )}
-      <h3>Recalibrage après changement de volume</h3>
-      <Field label="Nouveau volume (évaporation ou eau)" value={v2} onChange={setV2} unit="L" />
-      {positive(V, SG - 1, V2) ? (
-        <Result label="Nouvelle densité" value={fmt(gravityAfterVolumeChange(V, SG, V2))} />
-      ) : (
-        <Hint />
-      )}
-    </section>
+    <div className="stack">
+      <section>
+        <h2>Dilution</h2>
+        <p>Eau à ajouter pour baisser la densité jusqu’à la valeur souhaitée, en conservant la même quantité de sucre.</p>
+        <Field label="Volume" value={v} onChange={setV} unit="L" />
+        <Field label="Densité actuelle" value={sg} onChange={setSg} />
+        <Field label="Densité souhaitée" value={t} onChange={setT} />
+        {dil ? (
+          <>
+            <Result label="Eau à ajouter" value={`${fmt(dil.waterToAddL, 2)} L`} />
+            <Result label="Volume final" value={`${fmt(dil.finalVolumeL, 2)} L`} />
+          </>
+        ) : positive(V, SG - 1, T - 1) ? (
+          <p className="hint">Pour monter la densité, utilisez la section Concentration, plus bas.</p>
+        ) : (
+          <Hint />
+        )}
+        <h3>Recalibrage après changement de volume</h3>
+        <Field label="Nouveau volume (évaporation ou eau)" value={v2} onChange={setV2} unit="L" />
+        {positive(V, SG - 1, V2) ? (
+          <Result label="Nouvelle densité" value={fmt(gravityAfterVolumeChange(V, SG, V2))} />
+        ) : (
+          <Hint />
+        )}
+      </section>
+      <section>
+        <h2>Concentration</h2>
+        <p>Pour monter la densité jusqu’à la valeur souhaitée : en évaporant, ou en ajoutant du sucre.</p>
+        <Field label="Volume" value={cv} onChange={setCv} unit="L" />
+        <Field label="Densité actuelle" value={csg} onChange={setCsg} />
+        <Field label="Densité souhaitée" value={ct} onChange={setCt} />
+        {concOk ? (
+          <>
+            <h3>Par évaporation</h3>
+            <Result label="Volume à évaporer" value={`${fmt(-(evap?.waterToAddL ?? 0), 2)} L`} />
+            <Result label="Volume final" value={`${fmt(evap?.finalVolumeL ?? 0, 2)} L`} />
+            <h3>Par ajout de sucre</h3>
+            <label className="field">
+              <span>Sucre ajouté</span>
+              <select value={kind} onChange={(e) => setKind(e.target.value as SugarKind)}>
+                {Object.entries(SUGARS).map(([key, s]) => <option key={key} value={key}>{s.label}</option>)}
+              </select>
+            </label>
+            {sugarAdd && (
+              <>
+                <Result label="Sucre à ajouter" value={`${fmt(sugarAdd.grams, 0)} g`} />
+                <Result label="Volume final" value={`${fmt(sugarAdd.finalVolumeL, 2)} L`} />
+              </>
+            )}
+          </>
+        ) : positive(CV, CSG - 1, CT - 1) ? (
+          <p className="hint">Visez une densité plus haute que la densité actuelle.</p>
+        ) : (
+          <Hint />
+        )}
+      </section>
+    </div>
   );
 }
 

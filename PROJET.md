@@ -121,3 +121,6 @@ Fiche de brassage compactée pour tenir sur une page A4. Houblons et liste des r
 
 ## v0.28
 Réfractomètre : retrouver la densité initiale à partir de la densité lue au densimètre et du °Brix lu au réfractomètre (inversion de la formule cubique par dichotomie, originalGravityFromReadings).
+
+## v0.29
+Onglet Dilution et concentration : deux sections indépendantes, Dilution (volume, densité actuelle, densité souhaitée, recalibrage du volume) puis Concentration (volume, densité actuelle, densité souhaitée ; par évaporation et par ajout de sucre).
