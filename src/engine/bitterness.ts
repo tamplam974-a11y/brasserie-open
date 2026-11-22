@@ -44,3 +44,14 @@ export function ibuTinseth(
 ): number {
   return ibuContributions(additions, volumeL, boilGravity).reduce((s, v) => s + v, 0);
 }
+
+/**
+ * Minutes d’ébullition équivalentes pour un hopstand à une température donnée.
+ * Approximation : l’isomérisation des alpha-acides suit une loi d’Arrhenius
+ * (énergie d’activation d’environ 100 kJ/mol), rapportée à 100 °C. À valider par mesures.
+ */
+export function hopstandEquivalentMinutes(minutes: number, tempC: number): number {
+  if (tempC < 60) return 0;
+  const rate = Math.exp(-12027 * (1 / (tempC + 273.15) - 1 / 373.15));
+  return minutes * Math.min(1, rate);
+}

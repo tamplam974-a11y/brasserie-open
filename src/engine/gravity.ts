@@ -126,3 +126,68 @@ export function gravityAfterVolumeChange(
 ): number {
   return 1 + (gravityPoints(currentSg) * volumeL) / newVolumeL / 1000;
 }
+
+/** Formule précise (Hall) : plus juste que la formule simple pour les densités élevées. */
+export function abvAdvanced(og: number, fg: number): number {
+  return ((76.08 * (og - fg)) / (1.775 - og)) * (fg / 0.794);
+}
+
+export type SugarKind = 'saccharose' | 'dextrose' | 'miel' | 'dme';
+/** Éthanol théorique produit par gramme de produit (valeurs approchées). */
+export const SUGARS: Record<SugarKind, { label: string; ethanolGPerG: number }> = {
+  saccharose: { label: 'Sucre blanc (saccharose)', ethanolGPerG: 0.538 },
+  dextrose: { label: 'Dextrose (glucose monohydrate)', ethanolGPerG: 0.465 },
+  miel: { label: 'Miel', ethanolGPerG: 0.41 },
+  dme: { label: 'Extrait de malt sec (DME)', ethanolGPerG: 0.36 },
+};
+
+/**
+ * Alcool (% vol.) apporté par le sucre de ressucrage, en g par litre de bière.
+ * Éthanol en g/L divisé par 7,89 (densité 0,789) ; rendement réel supposé à 95 % du théorique.
+ */
+export function abvFromPrimingSugar(gPerL: number, ethanolGPerG: number, yieldRate = 0.95): number {
+  return (gPerL * ethanolGPerG * yieldRate) / 7.89;
+}
+
+/** Points de densité (points x litres) apportés par kg de sucre, et volume ajouté (L) par kg. Valeurs usuelles. */
+export const SUGAR_GRAVITY: Record<SugarKind, { pointsLPerKg: number; litersPerKg: number }> = {
+  saccharose: { pointsLPerKg: 384.6, litersPerKg: 0.63 },
+  dextrose: { pointsLPerKg: 309, litersPerKg: 0.63 },
+  dme: { pointsLPerKg: 375, litersPerKg: 0.67 },
+  miel: { pointsLPerKg: 292, litersPerKg: 0.7 },
+};
+
+/** Sucre à ajouter pour monter un moût à une densité cible, en tenant compte du volume qu’il ajoute. */
+export function sugarToReachGravity(
+  volumeL: number, currentSg: number, targetSg: number, kind: SugarKind,
+): { grams: number; finalVolumeL: number } | null {
+  if (!(volumeL > 0) || currentSg <= 1 || !(targetSg > currentSg)) return null;
+  const { pointsLPerKg: p, litersPerKg: dv } = SUGAR_GRAVITY[kind];
+  const t = gravityPoints(targetSg);
+  const kg = ((t - gravityPoints(currentSg)) * volumeL) / (p - t * dv);
+  return { grams: kg * 1000, finalVolumeL: volumeL + kg * dv };
+}
+
+/** Densité actuelle estimée à partir de la densité initiale (SG) et du °Brix lu, pour un réfractomètre. */
+export function refractometerFg(og: number, currentBrix: number, wortCorrectionFactor = 1.04): number {
+  return refractometerFinalGravity(sgToPlato(og) * wortCorrectionFactor, currentBrix, wortCorrectionFactor);
+}
+
+/**
+ * Densité initiale (SG) retrouvée à partir de la densité lue au densimètre et du °Brix lu au réfractomètre
+ * sur la même bière en cours ou en fin de fermentation : on inverse la formule de refractometerFinalGravity
+ * (recherche par dichotomie du Brix initial). Retourne null si les deux lectures sont incohérentes.
+ */
+export function originalGravityFromReadings(
+  hydrometerSg: number, currentBrix: number, wortCorrectionFactor = 1.04,
+): { og: number; originalBrix: number } | null {
+  const g = (ob: number) => refractometerFinalGravity(ob, currentBrix, wortCorrectionFactor) - hydrometerSg;
+  let lo = currentBrix, hi = 45;
+  if (!(g(lo) >= 0) || !(g(hi) <= 0)) return null;
+  for (let i = 0; i < 80; i++) {
+    const mid = (lo + hi) / 2;
+    if (g(mid) > 0) lo = mid; else hi = mid;
+  }
+  const originalBrix = (lo + hi) / 2;
+  return { og: platoToSg(originalBrix / wortCorrectionFactor), originalBrix };
+}
