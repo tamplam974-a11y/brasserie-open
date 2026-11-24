@@ -224,6 +224,7 @@ function lastBackup(): string {
   }
 }
 
+interface InstallEvent extends Event { prompt: () => Promise<void> }
 interface Req { id: string; n: number }
 interface Ctx { openReq: Req | null; delReq: Req | null; ordReq: { ids: string[]; n: number } | null; impReq: { recipes: RecipeState[]; n: number } | null; importRecipes: (ds: RecipeState[]) => void; open: (id: string) => void; remove: (id: string) => void; reorder: (ids: string[]) => void; bump: () => void; setCurrent: (d: RecipeState) => void; current: () => RecipeState | null }
 
@@ -260,6 +261,18 @@ export default function App() {
   const [impReq, setImpReq] = useState<{ recipes: RecipeState[]; n: number } | null>(null);
   const [, setLibVersion] = useState(0);
   const cur = useRef<RecipeState | null>(null);
+  // Bouton « Installer » : proposé par les navigateurs de type Chrome quand le site est installable.
+  const [installEv, setInstallEv] = useState<InstallEvent | null>(null);
+  useEffect(() => {
+    const onPrompt = (e: Event) => { e.preventDefault(); setInstallEv(e as InstallEvent); };
+    const onInstalled = () => setInstallEv(null);
+    window.addEventListener('beforeinstallprompt', onPrompt);
+    window.addEventListener('appinstalled', onInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onPrompt);
+      window.removeEventListener('appinstalled', onInstalled);
+    };
+  }, []);
   const [theme, setTheme] = useState<Theme>(initialTheme);
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -276,6 +289,12 @@ export default function App() {
           <h1>Brasserie Open</h1>
           <p className="sub">Boîte à outils gratuite du brasseur amateur</p>
         </div>
+        <div className="hbtns">
+        {installEv && (
+          <button className="theme" title="Installer Brasserie Open comme une application" onClick={() => { void installEv.prompt().then(() => setInstallEv(null)); }}>
+            ⤓ Installer
+          </button>
+        )}
         <button
           className="theme"
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -283,6 +302,7 @@ export default function App() {
         >
           {theme === 'dark' ? '☀ Clair' : '☾ Sombre'}
         </button>
+        </div>
       </header>
       <nav className="noprint">
         {TOOLS.map((t) => (
@@ -305,7 +325,7 @@ export default function App() {
       ))}
       <footer className="noprint">
         Calculs indicatifs : vérifiez toujours avec vos propres mesures.<br />
-        Recettes mémorisées dans ce navigateur, pour l’adresse {window.location.host}. Dernière sauvegarde : {lastBackup()}.
+        Recettes mémorisées dans ce navigateur, pour l’adresse {window.location.host}. Dernière sauvegarde : {lastBackup()}. Version {__APP_VERSION__}.
       </footer>
     </main>
   );

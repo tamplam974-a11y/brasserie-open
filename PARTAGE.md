@@ -73,3 +73,19 @@ Ils n'ont accès ni à vos recettes, ni à votre compte : les données de chacun
 ## Perte ou panne du PC
 
 La version en ligne protège le **site**, pas les **données** : les recettes sont dans le navigateur de l'appareil, en ligne comme en local. Seule une copie **hors de l'appareil** les protège. Exportez régulièrement (onglet Sauvegarde, ou Mes recettes > Fichiers) vers un autre support : clé USB, cloud personnel ou e-mail à vous-même. Ne mettez pas vos recettes dans le dépôt public.
+
+## La version locale n'est pas à jour
+
+Le numéro de version est affiché en bas de page : comparez celui de `localhost:5174` et celui du site en ligne.
+
+1. Vérifier que les fichiers sont à jour : `cd ~/brasserie-open && grep '"version"' package.json`.
+2. Arrêter tous les serveurs : Ctrl+C dans chaque terminal, puis `ss -ltnp | grep 5174` ne doit rien afficher (sinon : `pkill -f "[v]ite"`).
+3. Relancer : `npm run dev`, ouvrir `http://localhost:5174`, puis Ctrl+F5.
+
+Attention : `npm run partage` et `npm run reseau` servent une copie **construite** du site : elle ne se met à jour qu'en relançant la commande. `npm run dev` suit les fichiers en direct. `~/publier.sh` envoie sur GitHub mais ne lance aucun serveur local.
+
+## Installer comme une application
+
+Sur le **site en ligne**, avec Chrome, Chromium, Brave ou Edge : cliquez sur le bouton **⤓ Installer** en haut à droite (ou sur l'icône d'installation dans la barre d'adresse). L'application s'ouvre dans sa propre fenêtre, avec une icône dans le menu, et fonctionne aussi sans connexion. Sur Android : menu du navigateur > « Installer l'application ». Sur iPhone et iPad : Safari > Partager > « Sur l'écran d'accueil ». Firefox ne sait pas encore installer un site comme application sous Linux.
+
+L'application installée utilise les mêmes données que le navigateur pour cette adresse. Quand une nouvelle version est publiée, elle s'affiche à l'ouverture suivante, avec une connexion ; le numéro de version est en bas de page. La version locale (`localhost`) n'est jamais installable ni mise en mémoire, pour ne pas gêner le développement.

@@ -1,0 +1,16 @@
+{
+  "name": "Brasserie Open",
+  "short_name": "Brasserie",
+  "description": "Outils gratuits pour le brassage amateur : recettes, calculs, fiche de brassage, carbonatation.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e9ebed",
+  "theme_color": "#4a5b6e",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

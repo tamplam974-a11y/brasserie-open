@@ -133,3 +133,9 @@ Mes recettes : menu Fichiers pour exporter et importer toute la bibliothèque en
 
 ## v0.32
 Mes recettes : recherche par numéro de recette (le nombre au début du nom, par préfixe) et tri par numéro croissant ou décroissant (recipeNumber). Écarts d’IBU entre logiciels : à analyser avec les captures de l’utilisateur (forme du houblon, densité d’ébullition, volume, hopstand, formule).
+
+## v0.33
+Numéro de version affiché en bas de page (injecté par Vite depuis package.json). PARTAGE.md : dépannage « la version locale n’est pas à jour ».
+
+## v0.34
+Application installable (PWA) : manifeste, icônes (192, 512, adaptable, Apple), service worker (réseau d’abord pour les pages, mémoire d’abord pour /assets/), bouton Installer. Enregistré seulement hors localhost. Test de cohérence du manifeste et des icônes.
