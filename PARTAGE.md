@@ -50,3 +50,26 @@ Bonnes pratiques :
 - facultatif : Settings > Branches > règle de protection sur `main`.
 
 Les autres personnes peuvent réutiliser ton code selon la licence MIT choisie à la création du dépôt.
+
+## Où sont mes recettes ?
+
+Les recettes, ingrédients et styles personnalisés sont enregistrés **dans le navigateur, sur l'appareil où vous les saisissez**, et pour **une adresse précise**. GitHub n'héberge que le code du site, jamais vos données.
+
+- La version en ligne (`…github.io/brasserie-open/`) et la version locale (`localhost:5174`) sont **deux espaces séparés**, même dans le même navigateur.
+- Un autre navigateur, un autre appareil, la navigation privée ou l'effacement des données du site donnent un espace vide.
+- Pour déplacer ou sauvegarder : onglet **Sauvegarde** (tout en un fichier), ou Fichiers > Exporter HTML / BeerXML pour une recette, ou Exporter CSV dans les onglets Ingrédients et Styles.
+
+## Partager le code avec d'autres brasseurs
+
+Dépôt public : `https://github.com/tamplam974-a11y/brasserie-open`. Pour partager :
+
+- **le site** (le plus simple pour utiliser) : envoyez `https://tamplam974-a11y.github.io/brasserie-open/` ;
+- **le code** : envoyez l'adresse du dépôt. Chacun peut cliquer sur **Code > Download ZIP**, ou taper `git clone https://github.com/tamplam974-a11y/brasserie-open.git` puis `npm install` et `npm run dev` ;
+- **leur propre version en ligne** : bouton **Fork** sur le dépôt, puis dans leur copie : onglet Actions (activer les workflows), Settings > Pages > Source « GitHub Actions ». Leur adresse sera `https://LEUR-PSEUDO.github.io/brasserie-open/` ;
+- **proposer une amélioration** : « Pull request » depuis leur fork ; vous choisissez d'accepter ou non.
+
+Ils n'ont accès ni à vos recettes, ni à votre compte : les données de chacun restent dans son navigateur.
+
+## Perte ou panne du PC
+
+La version en ligne protège le **site**, pas les **données** : les recettes sont dans le navigateur de l'appareil, en ligne comme en local. Seule une copie **hors de l'appareil** les protège. Exportez régulièrement (onglet Sauvegarde, ou Mes recettes > Fichiers) vers un autre support : clé USB, cloud personnel ou e-mail à vous-même. Ne mettez pas vos recettes dans le dépôt public.

@@ -1,21 +1,36 @@
 import { useState, type DragEvent } from 'react';
 import { srmColor } from './beerColor';
 import { STYLES } from './data/styles';
-import { compute, loadLibrary } from './library';
+import { parseBeerXml, recipesToBeerXml } from './beerxml';
+import { downloadText } from './download';
+import { compute, loadLibrary, type RecipeState } from './library';
+import { parseRecipesCsv, recipesToCsv } from './recipesCsv';
 
 type Sort = 'manual' | 'name' | 'abv' | 'ibu' | 'ebc' | 'og';
 const f = (x: number, d = 1) => x.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
 
 /** Toutes les recettes mémorisées, en cartes ou en liste, réorganisables à la main. */
-export default function Recipes({ onOpen, onDelete, onReorder }: {
-  onOpen: (id: string) => void; onDelete: (id: string) => void; onReorder: (ids: string[]) => void;
+export default function Recipes({ onOpen, onDelete, onReorder, onImport }: {
+  onOpen: (id: string) => void; onDelete: (id: string) => void; onReorder: (ids: string[]) => void; onImport: (ds: RecipeState[]) => void;
 }) {
+  const [note, setNote] = useState('');
   const [view, setView] = useState<'cards' | 'list'>('cards');
   const [q, setQ] = useState('');
   const [sort, setSort] = useState<Sort>('manual');
   const [drag, setDrag] = useState<string | null>(null);
   const [over, setOver] = useState<string | null>(null);
   const lib = loadLibrary();
+  const exportXml = () => downloadText(recipesToBeerXml(lib.items.map((x) => x.data)), 'mes-recettes.xml', 'application/xml');
+  const exportCsv = () => downloadText(recipesToCsv(lib.items.map((x) => x.data)), 'mes-recettes.csv');
+  const importFile = (file: File | undefined, kind: 'xml' | 'csv') => {
+    if (!file) return;
+    file.text().then((t) => {
+      const ds = kind === 'xml' ? parseBeerXml(t) : parseRecipesCsv(t);
+      if (!ds?.length) { setNote('Fichier non reconnu.'); return; }
+      onImport(ds);
+      setNote(`${ds.length} recette(s) ajoutée(s) à la bibliothèque.`);
+    });
+  };
   const all = lib.items.map(({ id, data }) => ({ id, data, r: compute(data), style: STYLES.find((s) => s.id === data.styleId), current: id === lib.current }));
   const rows = all
     .filter((x) => `${x.data.name} ${x.data.styleId} ${x.style?.name ?? ''}`.toLowerCase().includes(q.trim().toLowerCase()))
@@ -72,6 +87,16 @@ export default function Recipes({ onOpen, onDelete, onReorder }: {
             <option value="ebc">Couleur décroissante</option>
             <option value="og">Densité décroissante</option>
           </select>
+          <details className="files"><summary className="add">Fichiers ▾</summary><div className="filemenu">
+            <button className="add" onClick={exportXml}>Tout exporter en BeerXML</button>
+            <label className="add">Importer un BeerXML
+              <input type="file" accept=".xml,text/xml,application/xml" hidden onChange={(e) => { importFile(e.target.files?.[0], 'xml'); e.target.value = ''; }} />
+            </label>
+            <button className="add" onClick={exportCsv}>Tout exporter en CSV</button>
+            <label className="add">Importer un CSV
+              <input type="file" accept=".csv,text/csv,text/plain" hidden onChange={(e) => { importFile(e.target.files?.[0], 'csv'); e.target.value = ''; }} />
+            </label>
+          </div></details>
         </div>
         {rows.length === 0 && <p className="hint">Aucune recette ne correspond.</p>}
         {view === 'cards' ? (
@@ -134,6 +159,7 @@ export default function Recipes({ onOpen, onDelete, onReorder }: {
             </table>
           </div>
         )}
+        {note && <p className="hint"><b>{note}</b></p>}
         <p className="hint">
           {manual ? 'Glissez-déposez une recette sur une autre (ou utilisez les flèches) pour changer l’ordre.' : 'Pour réorganiser : choisissez « Ordre manuel » et videz la recherche.'}
           {' '}Chiffres de la dernière version mémorisée de chaque recette.

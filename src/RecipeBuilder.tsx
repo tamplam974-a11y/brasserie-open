@@ -198,10 +198,11 @@ const WATER_FIELDS: [keyof WaterParams, string][] = [
   ['boil', 'Ébullition (min)'], ['loss', 'Pertes (L)'], ['grainTemp', 'Grain (°C)'],
 ];
 
-export default function RecipeBuilder({ openRequest, deleteRequest, reorderRequest, onLibraryChange, onSnapshot }: {
+export default function RecipeBuilder({ openRequest, deleteRequest, reorderRequest, importRequest, onLibraryChange, onSnapshot }: {
   openRequest?: { id: string; n: number } | null;
   deleteRequest?: { id: string; n: number } | null;
   reorderRequest?: { ids: string[]; n: number } | null;
+  importRequest?: { recipes: RecipeState[]; n: number } | null;
   onLibraryChange?: () => void;
   onSnapshot?: (d: RecipeState) => void;
 }) {
@@ -310,6 +311,11 @@ export default function RecipeBuilder({ openRequest, deleteRequest, reorderReque
   useEffect(() => {
     if (deleteRequest) removeId(deleteRequest.id);
   }, [deleteRequest]);
+  // Recettes importées depuis l’onglet « Mes recettes » : ajoutées à la bibliothèque, la recette ouverte ne change pas.
+  useEffect(() => {
+    if (!importRequest) return;
+    persist({ ...lib, items: [...lib.items, ...importRequest.recipes.map((data) => ({ id: newId(), data }))] });
+  }, [importRequest]);
   // Nouvel ordre des recettes demandé depuis l’onglet « Mes recettes ».
   useEffect(() => {
     if (!reorderRequest) return;

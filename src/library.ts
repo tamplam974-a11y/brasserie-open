@@ -1,5 +1,5 @@
-import { HOPS, MALTS, YEASTS } from './data/ingredients';
-import { STYLES } from './data/styles';
+import { HOPS, MALTS, YEASTS, restoreHop, restoreMalt, restoreYeast } from './data/ingredients';
+import { STYLES, upsertStyles } from './data/styles';
 import { calcRecipe, mashWater, strikeTemperature, type RecipeResult } from './engine';
 
 export interface MaltRow { id: string; kg: string; ebc?: string }
@@ -161,7 +161,7 @@ export function recipeToHtml(d: RecipeState): string {
   const noteBlock = (['before', 'during', 'after'] as const)
     .map((k, i) => (d.notes[k].trim() ? `<h3>${labels[i]}</h3><p style="white-space:pre-wrap">${esc(d.notes[k])}</p>` : ''))
     .join('');
-  const json = JSON.stringify(d).replace(/</g, '\\u003c');
+  const json = JSON.stringify({ ...d, customs: usedCustoms(d) }).replace(/</g, '\\u003c');
   return `<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(d.name)} – Brasserie Open</title>
@@ -182,7 +182,7 @@ ${noteBlock ? `<h2>Notes</h2>${noteBlock}` : ''}
 export function parseRecipeHtml(text: string): RecipeState | null {
   try {
     const el = new DOMParser().parseFromString(text, 'text/html').getElementById('brasserie-open-recette');
-    return el?.textContent ? sanitize(JSON.parse(el.textContent)) : null;
+    return el?.textContent ? sanitize(restoreCustoms(JSON.parse(el.textContent) as Record<string, unknown>)) : null;
   } catch {
     return null;
   }
@@ -217,4 +217,48 @@ export function notesFromText(text: string): Notes {
   for (let i = 1; i < parts.length; i += 2) out[key[parts[i]]] = (parts[i + 1] ?? '').replace(/\n$/, '');
   if (parts[0].trim()) out.before = `${parts[0].trim()}\n${out.before}`.trim();
   return out;
+}
+
+/** Ingrédients et style personnalisés utilisés par la recette, embarqués dans sa fiche HTML pour qu’elle soit lisible ailleurs. */
+function usedCustoms(d: RecipeState) {
+  return {
+    malts: MALTS.filter((x) => x.custom && d.mrows.some((r) => r.id === x.id)),
+    hops: HOPS.filter((x) => x.custom && d.hrows.some((r) => r.id === x.id)),
+    yeasts: YEASTS.filter((x) => x.custom && x.id === d.yeastId),
+    style: STYLES.filter((x) => x.custom && x.id === d.styleId),
+  };
+}
+
+const isStr = (x: unknown): x is string => typeof x === 'string' && x.length > 0 && x.length < 200;
+const isNum = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x);
+const isRange = (x: unknown): x is [number, number] => Array.isArray(x) && x.length === 2 && x.every(isNum);
+
+/** Recrée les ingrédients et le style personnalisés d’une fiche importée, et corrige les identifiants si un équivalent existe déjà. */
+function restoreCustoms(o: Record<string, unknown>): Record<string, unknown> {
+  const c = (o.customs && typeof o.customs === 'object' ? o.customs : {}) as Record<string, unknown>;
+  const list = (k: string) => (Array.isArray(c[k]) ? (c[k] as Record<string, unknown>[]) : []);
+  const map = new Map<string, string>();
+  for (const m of list('malts')) {
+    if (isStr(m.id) && isStr(m.name) && isNum(m.ebc) && isNum(m.extractPct)) {
+      map.set(m.id, restoreMalt({ id: m.id, name: m.name, brand: isStr(m.brand) ? m.brand : undefined, ebc: m.ebc, extractPct: m.extractPct }));
+    }
+  }
+  for (const h of list('hops')) {
+    if (isStr(h.id) && isStr(h.name) && isNum(h.aa)) {
+      map.set(h.id, restoreHop({ id: h.id, name: h.name, brand: isStr(h.brand) ? h.brand : undefined, aa: h.aa, aroma: typeof h.aroma === 'string' ? h.aroma : '' }));
+    }
+  }
+  for (const y of list('yeasts')) {
+    if (isStr(y.id) && isStr(y.name) && isNum(y.attenuationPct)) {
+      map.set(y.id, restoreYeast({ id: y.id, name: y.name, brand: isStr(y.brand) ? y.brand : undefined, attenuationPct: y.attenuationPct, tempC: typeof y.tempC === 'string' ? y.tempC : '', lager: y.lager === true }));
+    }
+  }
+  for (const s of list('style')) {
+    if (isStr(s.id) && isStr(s.name) && [s.og, s.fg, s.ibu, s.srm, s.abv].every(isRange) && !STYLES.some((x) => x.id === s.id)) {
+      upsertStyles([{ id: s.id, name: s.name, og: s.og as [number, number], fg: s.fg as [number, number], ibu: s.ibu as [number, number], srm: s.srm as [number, number], abv: s.abv as [number, number] }]);
+    }
+  }
+  const remap = (id: unknown) => (typeof id === 'string' ? map.get(id) ?? id : id);
+  const rows = (x: unknown) => (Array.isArray(x) ? (x as { id?: unknown }[]).map((r) => ({ ...r, id: remap(r?.id) })) : x);
+  return { ...o, mrows: rows(o.mrows), hrows: rows(o.hrows), yeastId: remap(o.yeastId) };
 }

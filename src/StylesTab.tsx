@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { parseStyles } from './csv';
+import { parseStyles, stylesToCsv } from './csv';
 import { STYLES, removeStyle, upsertStyles } from './data/styles';
 import { downloadText } from './download';
 
@@ -38,6 +38,7 @@ export default function StylesTab() {
             }} />
           </label>
           <button className="add" onClick={() => downloadText(TEMPLATE, 'modele-styles.csv')}>Modèle CSV</button>
+          <button className="add" disabled={!STYLES.some((s) => s.custom)} title="Exporte vos styles personnalisés et importés, au même format que l’import" onClick={() => downloadText(stylesToCsv(STYLES.filter((s) => s.custom)), 'mes-styles.csv')}>Exporter CSV</button>
         </div>
         <p className="hint">Colonnes : id, nom, og_min, og_max, fg_min, fg_max, ibu_min, ibu_max, srm_min, srm_max (ou ebc_min, ebc_max), abv_min, abv_max. Un style importé avec un numéro déjà présent remplace l’existant.</p>
         {note && <p className="hint"><b>{note}</b></p>}

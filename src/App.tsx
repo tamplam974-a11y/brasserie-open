@@ -7,6 +7,8 @@ import StylesTab from './StylesTab';
 import BrewSheet from './BrewSheet';
 import Carbonation from './Carbonation';
 import Hydrometer from './Hydrometer';
+import BackupTab from './BackupTab';
+import { LAST_BACKUP_KEY } from './backup';
 import type { RecipeState } from './library';
 import {
   abvSimple,
@@ -213,18 +215,28 @@ function Alcohol() {
   );
 }
 
+function lastBackup(): string {
+  try {
+    const t = Number(localStorage.getItem(LAST_BACKUP_KEY));
+    return t > 0 ? new Date(t).toLocaleDateString('fr-FR') : 'jamais (onglet Sauvegarde)';
+  } catch {
+    return 'inconnue';
+  }
+}
+
 interface Req { id: string; n: number }
-interface Ctx { openReq: Req | null; delReq: Req | null; ordReq: { ids: string[]; n: number } | null; open: (id: string) => void; remove: (id: string) => void; reorder: (ids: string[]) => void; bump: () => void; setCurrent: (d: RecipeState) => void; current: () => RecipeState | null }
+interface Ctx { openReq: Req | null; delReq: Req | null; ordReq: { ids: string[]; n: number } | null; impReq: { recipes: RecipeState[]; n: number } | null; importRecipes: (ds: RecipeState[]) => void; open: (id: string) => void; remove: (id: string) => void; reorder: (ids: string[]) => void; bump: () => void; setCurrent: (d: RecipeState) => void; current: () => RecipeState | null }
 
 const TOOLS: { id: string; label: string; view: (c: Ctx) => ReactElement }[] = [
-  { id: 'recette', label: 'Recette', view: (c) => <RecipeBuilder openRequest={c.openReq} deleteRequest={c.delReq} reorderRequest={c.ordReq} onLibraryChange={c.bump} onSnapshot={c.setCurrent} /> },
-  { id: 'recettes', label: 'Mes recettes', view: (c) => <Recipes onOpen={c.open} onDelete={c.remove} onReorder={c.reorder} /> },
+  { id: 'recette', label: 'Recette', view: (c) => <RecipeBuilder openRequest={c.openReq} deleteRequest={c.delReq} reorderRequest={c.ordReq} importRequest={c.impReq} onLibraryChange={c.bump} onSnapshot={c.setCurrent} /> },
+  { id: 'recettes', label: 'Mes recettes', view: (c) => <Recipes onOpen={c.open} onDelete={c.remove} onReorder={c.reorder} onImport={c.importRecipes} /> },
   { id: 'ingredients', label: 'Ingrédients', view: () => <Ingredients /> },
   { id: 'houblons', label: 'Houblons', view: () => <HopsTab /> },
   { id: 'styles', label: 'Styles', view: () => <StylesTab /> },
   { id: 'fiche', label: 'Fiche de brassage', view: (c) => <BrewSheet recipe={c.current()} /> },
   { id: 'carbo', label: 'Carbonatation', view: (c) => <Carbonation recipe={c.current()} /> },
   { id: 'densimetre', label: 'Densimètre', view: (c) => <Hydrometer recipe={c.current()} /> },
+  { id: 'sauvegarde', label: 'Sauvegarde', view: () => <BackupTab /> },
   { id: 'refracto', label: 'Réfractomètre', view: () => <Refractometer /> },
   { id: 'dilution', label: 'Dilution et concentration', view: () => <Dilution /> },
   { id: 'alcool', label: 'Taux d’alcool', view: () => <Alcohol /> },
@@ -245,6 +257,7 @@ export default function App() {
   const [openReq, setOpenReq] = useState<{ id: string; n: number } | null>(null);
   const [delReq, setDelReq] = useState<{ id: string; n: number } | null>(null);
   const [ordReq, setOrdReq] = useState<{ ids: string[]; n: number } | null>(null);
+  const [impReq, setImpReq] = useState<{ recipes: RecipeState[]; n: number } | null>(null);
   const [, setLibVersion] = useState(0);
   const cur = useRef<RecipeState | null>(null);
   const [theme, setTheme] = useState<Theme>(initialTheme);
@@ -280,7 +293,8 @@ export default function App() {
       </nav>
       {TOOLS.map((t) => (
         <div className="tool" key={t.id} hidden={t.id !== tool}>{t.view({
-          openReq, delReq, ordReq,
+          openReq, delReq, ordReq, impReq,
+          importRecipes: (ds) => setImpReq({ recipes: ds, n: Date.now() }),
           open: (id) => { setOpenReq({ id, n: Date.now() }); setTool('recette'); },
           remove: (id) => setDelReq({ id, n: Date.now() }),
           reorder: (ids) => setOrdReq({ ids, n: Date.now() }),
@@ -291,7 +305,7 @@ export default function App() {
       ))}
       <footer className="noprint">
         Calculs indicatifs : vérifiez toujours avec vos propres mesures.<br />
-        Recettes mémorisées dans ce navigateur, pour l’adresse {window.location.host}.
+        Recettes mémorisées dans ce navigateur, pour l’adresse {window.location.host}. Dernière sauvegarde : {lastBackup()}.
       </footer>
     </main>
   );

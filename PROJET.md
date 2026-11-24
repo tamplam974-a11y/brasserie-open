@@ -124,3 +124,9 @@ Réfractomètre : retrouver la densité initiale à partir de la densité lue au
 
 ## v0.29
 Onglet Dilution et concentration : deux sections indépendantes, Dilution (volume, densité actuelle, densité souhaitée, recalibrage du volume) puis Concentration (volume, densité actuelle, densité souhaitée ; par évaporation et par ajout de sucre).
+
+## v0.30
+Export CSV des malts, houblons, levures et styles personnalisés (mêmes colonnes que l’import). Onglet Sauvegarde : export et import de toutes les données (recettes, ingrédients, styles, relevés), en fusion ou en remplacement. Fiche HTML d’une recette portable : les ingrédients et le style personnalisés qu’elle utilise y sont embarqués et recréés à l’import.
+
+## v0.31
+Mes recettes : menu Fichiers pour exporter et importer toute la bibliothèque en BeerXML (plusieurs recettes dans un fichier) et en CSV (une ligne par malt, houblon ou palier). Date de la dernière sauvegarde rappelée en bas de page et dans l’onglet Sauvegarde. README.md pour le dépôt, PARTAGE.md complété (partager le code, panne du PC).

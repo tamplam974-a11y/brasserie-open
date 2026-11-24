@@ -192,3 +192,16 @@ function importInto<T extends { id: string; name: string; brand?: string; custom
 export const importMalts = (rows: { name: string; brand: string; ebc: number; extractPct: number }[]) => importInto('malts', MALTS, rows);
 export const importHops = (rows: { name: string; brand: string; aa: number; aroma: string }[]) => importInto('hops', HOPS, rows);
 export const importYeasts = (rows: { name: string; brand: string; attenuationPct: number; tempC: string; lager: boolean }[]) => importInto('yeasts', YEASTS, rows);
+
+/** Réintègre un ingrédient personnalisé venu d’un autre appareil : même identifiant s’il est libre, sinon celui d’un ingrédient de même nom et marque. */
+function restore<T extends { id: string; name: string; brand?: string; custom?: boolean }>(list: T[], item: T): string {
+  if (list.some((x) => x.id === item.id)) return item.id;
+  const twin = list.find((x) => norm(x.name) === norm(item.name) && norm(x.brand ?? '') === norm(item.brand ?? ''));
+  if (twin) return twin.id;
+  list.push({ ...item, custom: true });
+  saveCustom();
+  return item.id;
+}
+export const restoreMalt = (m: Malt): string => restore(MALTS, m);
+export const restoreHop = (h: Hop): string => restore(HOPS, h);
+export const restoreYeast = (y: Yeast): string => restore(YEASTS, y);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { HOPS, MALTS, YEASTS, addHop, addMalt, addYeast, importHops, importMalts, importYeasts, removeCustom, type Hop, type ImportResult, type Malt, type Yeast } from './data/ingredients';
-import { parseHops, parseMalts, parseYeasts } from './csv';
+import { hopsToCsv, maltsToCsv, parseHops, parseMalts, parseYeasts, yeastsToCsv } from './csv';
 
 const num = (s: string) => parseFloat(s.replace(',', '.'));
 
@@ -29,6 +29,7 @@ function Catalog<T extends Item>(p: {
   title: string; items: T[]; fields: [string, string][]; detail: (x: T) => string;
   onAdd: (v: Record<string, string>) => boolean; onDelete: (id: string) => void;
   onImportText: (text: string) => string; template: string; filename: string;
+  onExport: () => void; canExport: boolean;
 }) {
   const [note, setNote] = useState('');
   const [q, setQ] = useState('');
@@ -46,6 +47,7 @@ function Catalog<T extends Item>(p: {
           }} />
         </label>
         <button className="add" onClick={() => download(p.template, p.filename)}>Modèle CSV</button>
+        <button className="add" disabled={!p.canExport} title="Exporte vos ingrédients personnalisés et importés, au même format que l’import" onClick={p.onExport}>Exporter CSV</button>
       </div>
       {note && <p className="hint">{note}</p>}
       <div className="iform">
@@ -87,6 +89,8 @@ export default function Ingredients() {
           }}
           onDelete={(id) => { removeCustom(MALTS, id); refresh(); }}
           filename="modele-malts.csv"
+          canExport={MALTS.some((x) => x.custom)}
+          onExport={() => download(maltsToCsv(MALTS.filter((x) => x.custom)), 'mes-malts.csv')}
           template={'nom;marque;ebc;extrait\nPilsen;Ma Malterie;3,5;81\nCaramel 120;Ma Malterie;120;74\n'}
           onImportText={(t) => { const { rows, errors } = parseMalts(t); const r = importMalts(rows); refresh(); return rows.length ? summary(r, errors) : `Aucune ligne valide. ${errors[0] ?? 'Fichier vide.'}`; }}
         />
@@ -103,6 +107,8 @@ export default function Ingredients() {
           }}
           onDelete={(id) => { removeCustom(HOPS, id); refresh(); }}
           filename="modele-houblons.csv"
+          canExport={HOPS.some((x) => x.custom)}
+          onExport={() => download(hopsToCsv(HOPS.filter((x) => x.custom)), 'mes-houblons.csv')}
           template={'nom;marque;alpha;aromes\nMon houblon;Ma Ferme;12,5;agrumes, résine\n'}
           onImportText={(t) => { const { rows, errors } = parseHops(t); const r = importHops(rows); refresh(); return rows.length ? summary(r, errors) : `Aucune ligne valide. ${errors[0] ?? 'Fichier vide.'}`; }}
         />
@@ -119,6 +125,8 @@ export default function Ingredients() {
           }}
           onDelete={(id) => { removeCustom(YEASTS, id); refresh(); }}
           filename="modele-levures.csv"
+          canExport={YEASTS.some((x) => x.custom)}
+          onExport={() => download(yeastsToCsv(YEASTS.filter((x) => x.custom)), 'mes-levures.csv')}
           template={'nom;marque;attenuation;temperature;type\nMa levure ale;Mon Labo;75-80;18-22;ale\nMa levure lager;Mon Labo;80;10-14;lager\n'}
           onImportText={(t) => { const { rows, errors } = parseYeasts(t); const r = importYeasts(rows); refresh(); return rows.length ? summary(r, errors) : `Aucune ligne valide. ${errors[0] ?? 'Fichier vide.'}`; }}
         />

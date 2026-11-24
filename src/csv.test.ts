@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseCsv, parseHops, parseMalts, parseStyles, parseYeasts, toNum } from './csv';
+import { hopsToCsv, maltsToCsv, parseCsv, parseHops, parseMalts, parseStyles, parseYeasts, stylesToCsv, toNum, yeastsToCsv } from './csv';
 
 describe('CSV', () => {
   it('lit des champs entre guillemets et les fins de ligne Windows', () => {
@@ -52,6 +52,23 @@ describe('CSV des styles', () => {
     const { rows, errors } = parseStyles('X4;Inversé;1,060;1,040;1,008;1,012;10;20;3;6;4;5\nX5;Absurde;1,040;1,050;1,008;1,012;10;900;3;6;4;5');
     expect(rows).toHaveLength(0);
     expect(errors).toHaveLength(2);
+  });
+});
+
+describe('export CSV (aller-retour avec l’import)', () => {
+  it('relit des malts exportés, noms avec point-virgule et guillemets compris', () => {
+    const xs = [{ name: 'Malt « spécial »; test', brand: 'Ma Malterie', ebc: 3.5, extractPct: 81 }, { name: 'Caramel "120"', brand: 'Moi', ebc: 120, extractPct: 74.5 }];
+    expect(parseMalts(maltsToCsv(xs)).rows).toEqual(xs);
+  });
+  it('relit des houblons et des levures exportés', () => {
+    const hs = [{ name: 'Mon houblon', brand: 'Ferme', aa: 12.5, aroma: 'agrumes, résine' }];
+    expect(parseHops(hopsToCsv(hs)).rows).toEqual(hs);
+    const ys = [{ name: 'Ma levure', brand: 'Labo', attenuationPct: 78, tempC: '18–22', lager: false }, { name: 'Ma lager', brand: 'Labo', attenuationPct: 82, tempC: '10–14', lager: true }];
+    expect(parseYeasts(yeastsToCsv(ys)).rows).toEqual(ys);
+  });
+  it('relit des styles exportés', () => {
+    const ss = [{ id: 'X1', name: 'Ma bière', og: [1.045, 1.055] as [number, number], fg: [1.01, 1.014] as [number, number], ibu: [20, 30] as [number, number], srm: [8, 14] as [number, number], abv: [4.5, 5.5] as [number, number] }];
+    expect(parseStyles(stylesToCsv(ss)).rows).toEqual(ss);
   });
 });
 

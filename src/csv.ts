@@ -135,3 +135,21 @@ export function parseStyles(text: string): Parsed<StyleIn> {
   }
   return out;
 }
+
+// ---- Export CSV : mêmes colonnes que l’import, pour pouvoir réimporter ailleurs ----
+const cell = (v: string | number) => {
+  const t = String(v);
+  return /[;"\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+};
+const dec = (n: number) => String(n).replace('.', ',');
+const csv = (header: string, rows: (string | number)[][]) => `${[header, ...rows.map((r) => r.map(cell).join(';'))].join('\n')}\n`;
+
+export const maltsToCsv = (xs: { name: string; brand?: string; ebc: number; extractPct: number }[]) =>
+  csv('nom;marque;ebc;extrait', xs.map((x) => [x.name, x.brand ?? '', dec(x.ebc), dec(x.extractPct)]));
+export const hopsToCsv = (xs: { name: string; brand?: string; aa: number; aroma: string }[]) =>
+  csv('nom;marque;alpha;aromes', xs.map((x) => [x.name, x.brand ?? '', dec(x.aa), x.aroma]));
+export const yeastsToCsv = (xs: { name: string; brand?: string; attenuationPct: number; tempC: string; lager?: boolean }[]) =>
+  csv('nom;marque;attenuation;temperature;type', xs.map((x) => [x.name, x.brand ?? '', dec(x.attenuationPct), x.tempC, x.lager ? 'lager' : 'ale']));
+export const stylesToCsv = (xs: StyleIn[]) =>
+  csv('id;nom;og_min;og_max;fg_min;fg_max;ibu_min;ibu_max;srm_min;srm_max;abv_min;abv_max',
+    xs.map((x) => [x.id, x.name, ...[x.og, x.fg, x.ibu, x.srm, x.abv].flatMap((r) => [dec(r[0]), dec(r[1])])]));

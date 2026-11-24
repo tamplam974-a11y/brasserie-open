@@ -14,7 +14,7 @@ const fmtN = (v: number, d = 2) => String(Math.round(v * 10 ** d) / 10 ** d).rep
 const USE_OUT: Record<HopRow['use'], string> = { boil: 'Boil', fwh: 'First Wort', hopstand: 'Aroma', dryhop: 'Dry Hop' };
 const USE_IN: Record<string, HopRow['use']> = { boil: 'boil', 'first wort': 'fwh', aroma: 'hopstand', 'dry hop': 'dryhop', mash: 'boil' };
 
-export function recipeToBeerXml(d: RecipeState): string {
+function recipeXml(d: RecipeState): string {
   const r = compute(d);
   const { water, strikeC } = computeWater(d);
   const style = STYLES.find((s) => s.id === d.styleId);
@@ -44,12 +44,13 @@ export function recipeToBeerXml(d: RecipeState): string {
   const noteText = notesToText(d.notes);
   const notesXml = noteText ? t('NOTES', noteText) : '';
   void strikeC;
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<RECIPES>
-<RECIPE>${t('NAME', d.name)}${t('VERSION', 1)}${t('TYPE', 'All Grain')}${t('BREWER', 'Brasserie Open')}${t('BATCH_SIZE', fix(num(d.vol) || 0))}${t('BOIL_SIZE', fix(water?.preBoilL ?? (num(d.vol) || 0)))}${t('BOIL_TIME', fix(num(d.water.boil) || 60, 0))}${t('EFFICIENCY', fix(num(d.eff) || 0, 1))}${styleXml}<HOPS>${hops}</HOPS><FERMENTABLES>${ferm}</FERMENTABLES><MISCS></MISCS><YEASTS>${yeastXml}</YEASTS><WATERS></WATERS><MASH>${t('NAME', 'Mash')}${t('VERSION', 1)}${t('GRAIN_TEMP', fix(num(d.water.grainTemp) || 20, 1))}<MASH_STEPS>${steps}</MASH_STEPS></MASH>${calc}${notesXml}</RECIPE>
-</RECIPES>
-`;
+  return `<RECIPE>${t('NAME', d.name)}${t('VERSION', 1)}${t('TYPE', 'All Grain')}${t('BREWER', 'Brasserie Open')}${t('BATCH_SIZE', fix(num(d.vol) || 0))}${t('BOIL_SIZE', fix(water?.preBoilL ?? (num(d.vol) || 0)))}${t('BOIL_TIME', fix(num(d.water.boil) || 60, 0))}${t('EFFICIENCY', fix(num(d.eff) || 0, 1))}${styleXml}<HOPS>${hops}</HOPS><FERMENTABLES>${ferm}</FERMENTABLES><MISCS></MISCS><YEASTS>${yeastXml}</YEASTS><WATERS></WATERS><MASH>${t('NAME', 'Mash')}${t('VERSION', 1)}${t('GRAIN_TEMP', fix(num(d.water.grainTemp) || 20, 1))}<MASH_STEPS>${steps}</MASH_STEPS></MASH>${calc}${notesXml}</RECIPE>`;
 }
+
+const wrap = (parts: string[]) => `<?xml version="1.0" encoding="UTF-8"?>\n<RECIPES>\n${parts.join('\n')}\n</RECIPES>\n`;
+export const recipeToBeerXml = (d: RecipeState): string => wrap([recipeXml(d)]);
+/** Toutes les recettes dans un seul fichier BeerXML. */
+export const recipesToBeerXml = (ds: RecipeState[]): string => wrap(ds.map(recipeXml));
 
 const child = (e: Element, name: string) => Array.from(e.children).find((x) => x.tagName === name)?.textContent?.trim() ?? '';
 const numOf = (e: Element, name: string, d = NaN) => {
