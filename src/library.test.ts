@@ -36,7 +36,7 @@ describe('anciens styles', () => {
   });
 });
 
-import { compute as compute2, notesFromText, notesToText, scaleRecipe } from './library';
+import { compute as compute2, notesFromText, notesToText, recipeNumber, scaleRecipe } from './library';
 describe('redimensionnement et notes', () => {
   it('passe de 20 à 30 L en gardant densité et IBU', () => {
     const d = defaultRecipe();
@@ -82,6 +82,20 @@ describe('EBC modifiable par malt', () => {
     expect(compute2(d)!.ebc).toBeCloseTo(base, 10);
     expect(sanitize({ mrows: [{ id: 'pale', kg: '5', ebc: ' ' }] }).mrows[0]).toEqual({ id: 'pale', kg: '5' });
     expect(sanitize({ mrows: [{ id: 'pale', kg: '5', ebc: '30' }] }).mrows[0]).toEqual({ id: 'pale', kg: '5', ebc: '30' });
+  });
+});
+
+describe('numéro de recette', () => {
+  it('lit le nombre au début du nom', () => {
+    expect(recipeNumber('113 Grape ale Cilantro')).toBe(113);
+    expect(recipeNumber('#7 IPA')).toBe(7);
+    expect(recipeNumber('N° 12 Stout')).toBe(12);
+    expect(recipeNumber('  042 Blonde')).toBe(42);
+  });
+  it('ne prend pas un nombre qui n’est pas au début', () => {
+    expect(recipeNumber('IPA 113')).toBeNull();
+    expect(recipeNumber('Blonde')).toBeNull();
+    expect(recipeNumber('')).toBeNull();
   });
 });
 

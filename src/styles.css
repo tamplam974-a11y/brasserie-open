@@ -291,3 +291,6 @@ tr.over td { box-shadow: inset 0 2px 0 var(--accent); }
 
 /* v0.29 : Dilution et Concentration, deux tableaux l’un sous l’autre */
 .stack { display: grid; gap: 12px; max-width: 640px; }
+
+/* v0.32 */
+.numq { width: 76px; padding: 5px 8px; }

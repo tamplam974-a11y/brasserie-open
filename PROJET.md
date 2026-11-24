@@ -130,3 +130,6 @@ Export CSV des malts, houblons, levures et styles personnalisés (mêmes colonne
 
 ## v0.31
 Mes recettes : menu Fichiers pour exporter et importer toute la bibliothèque en BeerXML (plusieurs recettes dans un fichier) et en CSV (une ligne par malt, houblon ou palier). Date de la dernière sauvegarde rappelée en bas de page et dans l’onglet Sauvegarde. README.md pour le dépôt, PARTAGE.md complété (partager le code, panne du PC).
+
+## v0.32
+Mes recettes : recherche par numéro de recette (le nombre au début du nom, par préfixe) et tri par numéro croissant ou décroissant (recipeNumber). Écarts d’IBU entre logiciels : à analyser avec les captures de l’utilisateur (forme du houblon, densité d’ébullition, volume, hopstand, formule).

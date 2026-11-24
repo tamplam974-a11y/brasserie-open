@@ -262,3 +262,9 @@ function restoreCustoms(o: Record<string, unknown>): Record<string, unknown> {
   const rows = (x: unknown) => (Array.isArray(x) ? (x as { id?: unknown }[]).map((r) => ({ ...r, id: remap(r?.id) })) : x);
   return { ...o, mrows: rows(o.mrows), hrows: rows(o.hrows), yeastId: remap(o.yeastId) };
 }
+
+/** Numéro de recette : le nombre placé au début du nom (« 113 Grape ale » donne 113, « #7 IPA » donne 7), sinon null. */
+export function recipeNumber(name: string): number | null {
+  const m = /^\s*(?:n°|no\.?|#)?\s*(\d{1,6})(?!\d)/i.exec(name);
+  return m ? parseInt(m[1], 10) : null;
+}

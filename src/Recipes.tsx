@@ -3,10 +3,10 @@ import { srmColor } from './beerColor';
 import { STYLES } from './data/styles';
 import { parseBeerXml, recipesToBeerXml } from './beerxml';
 import { downloadText } from './download';
-import { compute, loadLibrary, type RecipeState } from './library';
+import { compute, loadLibrary, recipeNumber, type RecipeState } from './library';
 import { parseRecipesCsv, recipesToCsv } from './recipesCsv';
 
-type Sort = 'manual' | 'name' | 'abv' | 'ibu' | 'ebc' | 'og';
+type Sort = 'manual' | 'name' | 'num' | 'numdesc' | 'abv' | 'ibu' | 'ebc' | 'og';
 const f = (x: number, d = 1) => x.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
 
 /** Toutes les recettes mémorisées, en cartes ou en liste, réorganisables à la main. */
@@ -16,6 +16,7 @@ export default function Recipes({ onOpen, onDelete, onReorder, onImport }: {
   const [note, setNote] = useState('');
   const [view, setView] = useState<'cards' | 'list'>('cards');
   const [q, setQ] = useState('');
+  const [numQ, setNumQ] = useState('');
   const [sort, setSort] = useState<Sort>('manual');
   const [drag, setDrag] = useState<string | null>(null);
   const [over, setOver] = useState<string | null>(null);
@@ -34,12 +35,18 @@ export default function Recipes({ onOpen, onDelete, onReorder, onImport }: {
   const all = lib.items.map(({ id, data }) => ({ id, data, r: compute(data), style: STYLES.find((s) => s.id === data.styleId), current: id === lib.current }));
   const rows = all
     .filter((x) => `${x.data.name} ${x.data.styleId} ${x.style?.name ?? ''}`.toLowerCase().includes(q.trim().toLowerCase()))
+    .filter((x) => !numQ.trim() || String(recipeNumber(x.data.name) ?? '').startsWith(numQ.trim().replace(/^#/, '')))
     .sort((a, b) => {
       if (sort === 'manual') return 0;
       if (sort === 'name') return a.data.name.localeCompare(b.data.name, 'fr');
+      if (sort === 'num' || sort === 'numdesc') {
+        const na = recipeNumber(a.data.name), nb = recipeNumber(b.data.name);
+        if (na === null || nb === null) return na === nb ? 0 : na === null ? 1 : -1;
+        return sort === 'num' ? na - nb : nb - na;
+      }
       return (b.r?.[sort] ?? 0) - (a.r?.[sort] ?? 0);
     });
-  const manual = sort === 'manual' && !q.trim();
+  const manual = sort === 'manual' && !q.trim() && !numQ.trim();
   const ids = all.map((x) => x.id);
   const move = (id: string, delta: -1 | 1) => {
     const i = ids.indexOf(id), j = i + delta;
@@ -79,9 +86,12 @@ export default function Recipes({ onOpen, onDelete, onReorder, onImport }: {
         </div>
         <div className="libbar">
           <input className="nm" placeholder="Rechercher (nom, style)" aria-label="Rechercher une recette" value={q} onChange={(e) => setQ(e.target.value)} />
+          <input className="numq" placeholder="N°" inputMode="numeric" aria-label="Rechercher par numéro de recette" title="Numéro de recette : le nombre au début du nom" value={numQ} onChange={(e) => setNumQ(e.target.value)} />
           <select aria-label="Trier par" value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
             <option value="manual">Ordre manuel</option>
             <option value="name">Trier par nom</option>
+            <option value="num">Numéro croissant</option>
+            <option value="numdesc">Numéro décroissant</option>
             <option value="abv">Alcool décroissant</option>
             <option value="ibu">Amertume décroissante</option>
             <option value="ebc">Couleur décroissante</option>
