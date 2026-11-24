@@ -30,7 +30,7 @@ describe('bibliothèque', () => {
 
 describe('anciens styles', () => {
   it('convertit les anciens identifiants', () => {
-    expect(sanitize({ styleId: '15A' }).styleId).toBe('10A');
+    expect(sanitize({ styleId: '15A' }).styleId).toBe('15A'); // désormais Irish Red Ale
     expect(sanitize({ styleId: '27' }).styleId).toBe('17D');
     expect(sanitize({ styleId: '27L' }).styleId).toBe('27L');
   });

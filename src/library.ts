@@ -21,7 +21,7 @@ const USE_LABEL: Record<HopRow['use'], string> = { boil: 'Ébullition', fwh: 'FW
 const num = (s: string) => parseFloat(String(s).replace(',', '.'));
 const str = (v: unknown, d: string) => (typeof v === 'string' ? v : d);
 /** Anciens identifiants de styles (corrigés en v0.13). */
-const STYLE_ALIAS: Record<string, string> = { '15A': '10A', '27': '17D' };
+const STYLE_ALIAS: Record<string, string> = { '27': '17D' };
 export const newId = () => Math.random().toString(36).slice(2, 9);
 
 export function defaultRecipe(name = 'Ma recette'): RecipeState {

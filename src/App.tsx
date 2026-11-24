@@ -8,6 +8,7 @@ import BrewSheet from './BrewSheet';
 import Carbonation from './Carbonation';
 import Hydrometer from './Hydrometer';
 import BackupTab from './BackupTab';
+import { loadSort, saveSort, type Sort } from './recipeSort';
 import { LAST_BACKUP_KEY } from './backup';
 import type { RecipeState } from './library';
 import {
@@ -226,11 +227,11 @@ function lastBackup(): string {
 
 interface InstallEvent extends Event { prompt: () => Promise<void> }
 interface Req { id: string; n: number }
-interface Ctx { openReq: Req | null; delReq: Req | null; ordReq: { ids: string[]; n: number } | null; impReq: { recipes: RecipeState[]; n: number } | null; importRecipes: (ds: RecipeState[]) => void; open: (id: string) => void; remove: (id: string) => void; reorder: (ids: string[]) => void; bump: () => void; setCurrent: (d: RecipeState) => void; current: () => RecipeState | null }
+interface Ctx { openReq: Req | null; delReq: Req | null; ordReq: { ids: string[]; n: number } | null; impReq: { recipes: RecipeState[]; n: number } | null; importRecipes: (ds: RecipeState[]) => void; open: (id: string) => void; remove: (id: string) => void; reorder: (ids: string[]) => void; bump: () => void; sort: Sort; setSort: (s: Sort) => void; setCurrent: (d: RecipeState) => void; current: () => RecipeState | null }
 
 const TOOLS: { id: string; label: string; view: (c: Ctx) => ReactElement }[] = [
-  { id: 'recette', label: 'Recette', view: (c) => <RecipeBuilder openRequest={c.openReq} deleteRequest={c.delReq} reorderRequest={c.ordReq} importRequest={c.impReq} onLibraryChange={c.bump} onSnapshot={c.setCurrent} /> },
-  { id: 'recettes', label: 'Mes recettes', view: (c) => <Recipes onOpen={c.open} onDelete={c.remove} onReorder={c.reorder} onImport={c.importRecipes} /> },
+  { id: 'recette', label: 'Recette', view: (c) => <RecipeBuilder openRequest={c.openReq} deleteRequest={c.delReq} reorderRequest={c.ordReq} importRequest={c.impReq} sort={c.sort} onLibraryChange={c.bump} onSnapshot={c.setCurrent} /> },
+  { id: 'recettes', label: 'Mes recettes', view: (c) => <Recipes onOpen={c.open} onDelete={c.remove} onReorder={c.reorder} onImport={c.importRecipes} sort={c.sort} onSort={c.setSort} /> },
   { id: 'ingredients', label: 'Ingrédients', view: () => <Ingredients /> },
   { id: 'houblons', label: 'Houblons', view: () => <HopsTab /> },
   { id: 'styles', label: 'Styles', view: () => <StylesTab /> },
@@ -259,6 +260,7 @@ export default function App() {
   const [delReq, setDelReq] = useState<{ id: string; n: number } | null>(null);
   const [ordReq, setOrdReq] = useState<{ ids: string[]; n: number } | null>(null);
   const [impReq, setImpReq] = useState<{ recipes: RecipeState[]; n: number } | null>(null);
+  const [sort, setSortState] = useState<Sort>(loadSort);
   const [, setLibVersion] = useState(0);
   const cur = useRef<RecipeState | null>(null);
   // Bouton « Installer » : proposé par les navigateurs de type Chrome quand le site est installable.
@@ -319,6 +321,8 @@ export default function App() {
           remove: (id) => setDelReq({ id, n: Date.now() }),
           reorder: (ids) => setOrdReq({ ids, n: Date.now() }),
           bump: () => setLibVersion((v) => v + 1),
+          sort,
+          setSort: (s) => { setSortState(s); saveSort(s); },
           setCurrent: (d) => { cur.current = d; },
           current: () => cur.current,
         })}</div>

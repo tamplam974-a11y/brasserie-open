@@ -139,3 +139,6 @@ Numéro de version affiché en bas de page (injecté par Vite depuis package.jso
 
 ## v0.34
 Application installable (PWA) : manifeste, icônes (192, 512, adaptable, Apple), service worker (réseau d’abord pour les pages, mémoire d’abord pour /assets/), bouton Installer. Enregistré seulement hors localhost. Test de cohérence du manifeste et des icônes.
+
+## v0.35
+Le tri choisi dans Mes recettes (ordre manuel, nom, numéro, alcool…) est mémorisé et appliqué aussi à la liste déroulante « Liste » de la recette (recipeSort.ts). 15 styles ajoutés : American Amber, Belgian Dubbel, Tripel, Dark Strong, Blond, Irish Red, Foreign Extra Stout, British Brown, Wee Heavy, Rauchbier, Flanders Red, Belgian IPA, Black IPA, Rye IPA, Braggot (indicatif). L’ancien alias 15A vers Weissbier est supprimé : 15A est maintenant Irish Red Ale.

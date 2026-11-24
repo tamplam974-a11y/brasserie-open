@@ -15,4 +15,11 @@ describe('styles', () => {
       expect(names).toContain(n);
     }
   });
+  it('contiennent les styles ajoutés à la demande de l’utilisateur', () => {
+    const names = STYLES.map((s) => s.name).join('|');
+    for (const n of ['American Amber', 'Dubbel', 'Tripel', 'Dark Strong', 'Blond', 'Irish Red', 'Foreign Extra Stout', 'British Brown', 'Wee Heavy', 'Rauchbier', 'Flanders Red', 'Belgian IPA', 'Black IPA', 'Rye IPA', 'Braggot', 'Witbier']) {
+      expect(names).toContain(n);
+    }
+  });
 });
+

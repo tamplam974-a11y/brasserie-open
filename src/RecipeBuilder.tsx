@@ -4,6 +4,7 @@ import { HOPS, MALTS, YEASTS } from './data/ingredients';
 import { STYLES, type Range } from './data/styles';
 import { parseBeerXml, recipeToBeerXml } from './beerxml';
 import { gaugeHue } from './gauge';
+import { sortItems, type Sort } from './recipeSort';
 import { FAMILIES, FAMILY_COLORS, aromaProfile } from './aroma';
 import { YEAST_COLORS, YEAST_FAMILIES, yeastProfile } from './yeastProfile';
 import {
@@ -198,11 +199,12 @@ const WATER_FIELDS: [keyof WaterParams, string][] = [
   ['boil', 'Ébullition (min)'], ['loss', 'Pertes (L)'], ['grainTemp', 'Grain (°C)'],
 ];
 
-export default function RecipeBuilder({ openRequest, deleteRequest, reorderRequest, importRequest, onLibraryChange, onSnapshot }: {
+export default function RecipeBuilder({ openRequest, deleteRequest, reorderRequest, importRequest, sort, onLibraryChange, onSnapshot }: {
   openRequest?: { id: string; n: number } | null;
   deleteRequest?: { id: string; n: number } | null;
   reorderRequest?: { ids: string[]; n: number } | null;
   importRequest?: { recipes: RecipeState[]; n: number } | null;
+  sort?: Sort;
   onLibraryChange?: () => void;
   onSnapshot?: (d: RecipeState) => void;
 }) {
@@ -399,7 +401,7 @@ export default function RecipeBuilder({ openRequest, deleteRequest, reorderReque
         <div className="libline">
           <select className="lib" aria-label="Liste des recettes" title="Choisir une recette" value="" onChange={(e) => switchTo(e.target.value)}>
             <option value="" disabled hidden>Liste</option>
-            {lib.items.map((x) => <option key={x.id} value={x.id}>{x.id === lib.current ? '✓ ' : ''}{x.data.name}</option>)}
+            {sortItems(lib.items, sort ?? 'manual').map((x) => <option key={x.id} value={x.id}>{x.id === lib.current ? '✓ ' : ''}{x.data.name}</option>)}
           </select>
           <input className="nm rname" aria-label="Nom de la recette" placeholder="Nom de la recette" title="Modifiez le nom, puis cliquez sur Mémoriser" value={name} onChange={(e) => setName(e.target.value)} />
           <button className="save" onClick={save}>Mémoriser</button>
