@@ -7,7 +7,7 @@ const num = (s: string) => parseFloat(String(s).replace(',', '.'));
 const f = (x: number, d = 1) => x.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
 const Blank = ({ w = 90 }: { w?: number }) => <span className="blank" style={{ width: w }} />;
 const Check = () => <input type="checkbox" className="chk" aria-label="Fait" />;
-const USE: Record<string, string> = { boil: 'Ébullition', fwh: 'FWH', hopstand: 'Hopstand', dryhop: 'Dry hop' };
+const USE: Record<string, string> = { boil: 'Ébullition', fwh: 'FWH', hopstand: 'Hopstand', dryhop: 'Dry hop', mash: 'Mash hopping' };
 
 /** Fiche de brassage imprimable, tirée de la recette en cours dans l’éditeur. */
 export default function BrewSheet({ recipe: d }: { recipe: RecipeState | null }) {

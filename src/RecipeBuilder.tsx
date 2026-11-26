@@ -509,11 +509,12 @@ export default function RecipeBuilder({ openRequest, deleteRequest, reorderReque
               <select aria-label="Usage" value={h.use} onChange={(e) => up({ use: e.target.value as HopRow['use'], ...USE_DEFAULTS[e.target.value as HopRow['use']] })}>
                 <option value="boil">Ébullition</option>
                 <option value="fwh">FWH</option>
+                <option value="mash">Mash hopping</option>
                 <option value="hopstand">Hopstand</option>
                 <option value="dryhop">Dry hop</option>
               </select>
               <input aria-label="Minutes" inputMode="decimal" value={h.min} disabled={h.use === 'dryhop'} onChange={(e) => up({ min: e.target.value })} />
-              <input aria-label="Température en °C" inputMode="decimal" value={h.use === 'hopstand' ? h.temp : h.use === 'dryhop' ? '' : '100'} disabled={h.use !== 'hopstand'} onChange={(e) => up({ temp: e.target.value })} />
+              <input aria-label="Température en °C" inputMode="decimal" value={h.use === 'hopstand' ? h.temp : h.use === 'dryhop' || h.use === 'mash' ? '' : '100'} disabled={h.use !== 'hopstand'} onChange={(e) => up({ temp: e.target.value })} />
               <output className="ibu" aria-label="IBU de la ligne">{r ? fmt(r.hopIbu[i] ?? 0, 1) : '–'}</output>
               <button onClick={() => setH(hrows.filter((_, j) => j !== i))} aria-label="Supprimer">×</button>
             </div>

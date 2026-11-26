@@ -11,8 +11,8 @@ const fix = (v: number, d = 3) => (Number.isFinite(v) ? v.toFixed(d) : '0');
 const toLovibond = (ebc: number) => (ebc / 1.97 + 0.76) / 1.3546;
 const fromLovibond = (l: number) => (1.3546 * l - 0.76) * 1.97;
 const fmtN = (v: number, d = 2) => String(Math.round(v * 10 ** d) / 10 ** d).replace('.', ',');
-const USE_OUT: Record<HopRow['use'], string> = { boil: 'Boil', fwh: 'First Wort', hopstand: 'Aroma', dryhop: 'Dry Hop' };
-const USE_IN: Record<string, HopRow['use']> = { boil: 'boil', 'first wort': 'fwh', aroma: 'hopstand', 'dry hop': 'dryhop', mash: 'boil' };
+const USE_OUT: Record<HopRow['use'], string> = { boil: 'Boil', fwh: 'First Wort', hopstand: 'Aroma', dryhop: 'Dry Hop', mash: 'Mash' };
+const USE_IN: Record<string, HopRow['use']> = { boil: 'boil', 'first wort': 'fwh', aroma: 'hopstand', 'dry hop': 'dryhop', mash: 'mash' };
 
 function recipeXml(d: RecipeState): string {
   const r = compute(d);

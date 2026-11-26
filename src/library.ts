@@ -3,7 +3,7 @@ import { STYLES, upsertStyles } from './data/styles';
 import { calcRecipe, mashWater, strikeTemperature, type RecipeResult } from './engine';
 
 export interface MaltRow { id: string; kg: string; ebc?: string }
-export interface HopRow { id: string; grams: string; aa: string; use: 'boil' | 'fwh' | 'hopstand' | 'dryhop'; min: string; temp: string }
+export interface HopRow { id: string; grams: string; aa: string; use: 'boil' | 'fwh' | 'hopstand' | 'dryhop' | 'mash'; min: string; temp: string }
 export interface MashStep { name: string; temp: string; min: string }
 export interface WaterParams { ratio: string; absorb: string; evap: string; boil: string; loss: string; grainTemp: string }
 export interface Notes { before: string; during: string; after: string }
@@ -14,9 +14,9 @@ export interface RecipeState {
 export interface Library { current: string; items: { id: string; data: RecipeState }[] }
 
 export const USE_DEFAULTS: Record<HopRow['use'], Partial<HopRow>> = {
-  boil: { min: '60', temp: '100' }, fwh: { min: '60', temp: '100' }, hopstand: { min: '20', temp: '80' }, dryhop: { min: '0' },
+  boil: { min: '60', temp: '100' }, fwh: { min: '60', temp: '100' }, hopstand: { min: '20', temp: '80' }, dryhop: { min: '0' }, mash: { min: '60', temp: '66' },
 };
-const USE_LABEL: Record<HopRow['use'], string> = { boil: 'Ébullition', fwh: 'FWH', hopstand: 'Hopstand', dryhop: 'Dry hop' };
+const USE_LABEL: Record<HopRow['use'], string> = { boil: 'Ébullition', fwh: 'FWH', hopstand: 'Hopstand', dryhop: 'Dry hop', mash: 'Mash hopping' };
 
 const num = (s: string) => parseFloat(String(s).replace(',', '.'));
 const str = (v: unknown, d: string) => (typeof v === 'string' ? v : d);
@@ -112,7 +112,7 @@ export function compute(d: RecipeState): RecipeResult | null {
     }),
     hops: d.hrows.map((h) => ({
       name: h.id, grams: num(h.grams) || 0, alphaAcidPct: num(h.aa) || 0, boilTimeMin: num(h.min) || 0,
-      dryHop: h.use === 'dryhop', fwh: h.use === 'fwh',
+      dryHop: h.use === 'dryhop', fwh: h.use === 'fwh', mash: h.use === 'mash',
       tempC: h.use === 'hopstand' ? (Number.isFinite(num(h.temp)) ? num(h.temp) : 0) : undefined,
     })),
   });

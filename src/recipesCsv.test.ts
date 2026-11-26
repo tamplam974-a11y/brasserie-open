@@ -38,3 +38,12 @@ describe('CSV de toutes les recettes', () => {
     expect(parseRecipesCsv('')).toBeNull();
   });
 });
+
+describe('CSV et mash hopping', () => {
+  it('relit un houblon d’empâtage', () => {
+    const d = defaultRecipe('Mash CSV');
+    d.hrows.push({ id: 'saaz', grams: '20', aa: '3,5', use: 'mash', min: '60', temp: '66' });
+    const [back] = parseRecipesCsv(recipesToCsv([d]))!;
+    expect(back.hrows[2]).toMatchObject({ id: 'saaz', use: 'mash', min: '60', grams: '20' });
+  });
+});

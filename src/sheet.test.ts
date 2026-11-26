@@ -23,3 +23,12 @@ describe('chronologie d’ébullition', () => {
     expect(boilSchedule(d).some((x) => x.when === '40 min' && x.what.includes('Saaz'))).toBe(true);
   });
 });
+
+describe('mash hopping dans la fiche', () => {
+  it('place le houblon d’empâtage avant tout le reste', () => {
+    const d = defaultRecipe();
+    d.hrows.push({ id: 'saaz', grams: '20', aa: '3,5', use: 'mash', min: '60', temp: '66' });
+    const s = boilSchedule(d);
+    expect(s[0]).toEqual({ when: 'Dans l’empâtage', what: '20 g Saaz (60 min)' });
+  });
+});

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FAMILIES, aromaProfile, combineProfiles, familyOf, hopProfile } from './aroma';
+import { FAMILIES, aromaProfile, aromaWeight, combineProfiles, familyOf, hopProfile } from './aroma';
 
 const at = (v: number[], f: (typeof FAMILIES)[number]) => v[FAMILIES.indexOf(f)];
 
@@ -47,5 +47,11 @@ describe('houblon seul et association', () => {
   it('renvoie des zéros sans profil', () => {
     expect(combineProfiles([]).every((x) => x === 0)).toBe(true);
     expect(hopProfile('amérisant').every((x) => x === 0)).toBe(true);
+  });
+});
+
+describe('houblon à l’empâtage et arôme', () => {
+  it('compte pour un cinquième de son poids', () => {
+    expect(aromaWeight({ aroma: 'agrumes', grams: 50, use: 'mash', min: 60 })).toBeCloseTo(10, 10);
   });
 });

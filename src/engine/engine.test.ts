@@ -289,3 +289,14 @@ describe('retrouver la densité initiale', () => {
     expect(originalGravityFromReadings(0.9, 8, 1.04)).toBeNull();
   });
 });
+
+describe('mash hopping', () => {
+  const base = { volumeL: 20, efficiencyPct: 75, yeastAttenuationPct: 75, malts: [{ kg: 5, extractPct: 80, ebc: 3.5 }] };
+  const h = { grams: 30, alphaAcidPct: 12, boilTimeMin: 60 };
+  it('apporte 20 % de l’amertume du même houblon bouilli aussi longtemps', () => {
+    const boil = calcRecipe({ ...base, hops: [h] }).ibu;
+    const mash = calcRecipe({ ...base, hops: [{ ...h, mash: true }] }).ibu;
+    expect(mash / boil).toBeCloseTo(0.2, 10);
+    expect(mash).toBeGreaterThan(0);
+  });
+});

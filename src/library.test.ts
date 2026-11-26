@@ -99,3 +99,14 @@ describe('numéro de recette', () => {
   });
 });
 
+
+describe('houblon à l’empâtage', () => {
+  it('est compté à 20 % dans les IBU de la recette', () => {
+    const d = defaultRecipe();
+    d.hrows = [{ id: 'magnum', grams: '30', aa: '13', use: 'boil', min: '60', temp: '100' }];
+    const boil = compute(d)!.ibu;
+    d.hrows = [{ id: 'magnum', grams: '30', aa: '13', use: 'mash', min: '60', temp: '66' }];
+    expect(compute(d)!.ibu / boil).toBeCloseTo(0.2, 10);
+    expect(sanitize({ hrows: [{ id: 'magnum', use: 'mash' }] }).hrows[0].use).toBe('mash');
+  });
+});

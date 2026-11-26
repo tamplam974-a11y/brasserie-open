@@ -9,9 +9,12 @@ const POINTS_L_PER_KG = 384.6;
 /** Bonus d’utilisation du houblonnage du premier moût (FWH) par rapport à la même durée d’ébullition. Approximation courante (+10 %), à valider. */
 export const FWH_FACTOR = 1.1;
 
+/** Houblons ajoutés à l’empâtage (mash hopping) : amertume ramenée à 20 % de celle du même houblon bouilli aussi longtemps (réglage par défaut de BeerSmith, -80 %). */
+export const MASH_FACTOR = 0.2;
+
 export interface RecipeMalt { kg: number; extractPct: number; ebc: number }
 /** dryHop : 0 IBU. tempC : température de l’addition (100 °C en ébullition ; plus bas pour un hopstand ou une altitude élevée). */
-export interface RecipeHop extends HopAddition { dryHop?: boolean; tempC?: number; fwh?: boolean }
+export interface RecipeHop extends HopAddition { dryHop?: boolean; tempC?: number; fwh?: boolean; mash?: boolean }
 export interface RecipeInput {
   volumeL: number;
   efficiencyPct: number;
@@ -39,7 +42,7 @@ export function calcRecipe(r: RecipeInput): RecipeResult {
     h.dryHop ? 0 : ibuForAddition(
       h.tempC === undefined ? h
         : { ...h, boilTimeMin: hopstandEquivalentMinutes(h.boilTimeMin, h.tempC) },
-      r.volumeL, og) * (h.fwh ? FWH_FACTOR : 1));
+      r.volumeL, og) * (h.fwh ? FWH_FACTOR : 1) * (h.mash ? MASH_FACTOR : 1));
   const ibu = hopIbu.reduce((t, x) => t + x, 0);;
   const srm = srmMorey(r.malts.map((m) => ({ kg: m.kg, lovibond: ebcToLovibond(m.ebc) })), r.volumeL);
   return {

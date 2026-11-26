@@ -6,7 +6,7 @@ import { defaultRecipe, sanitize, type HopRow, type MaltRow, type MashStep, type
 
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g, '');
 const cell = (v: string) => (/[;"\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
-const USE_OUT: Record<HopRow['use'], string> = { boil: 'ébullition', fwh: 'FWH', hopstand: 'hopstand', dryhop: 'dry hop' };
+const USE_OUT: Record<HopRow['use'], string> = { boil: 'ébullition', fwh: 'FWH', hopstand: 'hopstand', dryhop: 'dry hop', mash: 'mash hopping' };
 const HEADER = 'recette;style;volume_l;rendement;levure;section;nom;quantite;ebc;alpha;usage;minutes;temp_c';
 
 export function recipesToCsv(ds: RecipeState[]): string {
@@ -69,7 +69,7 @@ export function parseRecipesCsv(text: string): RecipeState[] | null {
         const k = byName(HOPS, item), aaStr = get(r, i.aa), alpha = toNum(aaStr);
         const id = k?.id ?? addHop({ name: item, aa: Number.isFinite(alpha) ? alpha : 8, aroma: '' });
         const u = norm(get(r, i.use));
-        const use: HopRow['use'] = /fwh|premier/.test(u) ? 'fwh' : /hopstand|whirlpool|aroma|flamme/.test(u) ? 'hopstand' : /dry|froid/.test(u) ? 'dryhop' : 'boil';
+        const use: HopRow['use'] = /mash|empatage/.test(u) ? 'mash' : /fwh|premier/.test(u) ? 'fwh' : /hopstand|whirlpool|aroma|flamme/.test(u) ? 'hopstand' : /dry|froid/.test(u) ? 'dryhop' : 'boil';
         hrows.push({
           id, use, grams: get(r, i.qty) || '0', aa: aaStr || String(k?.aa ?? 8).replace('.', ','),
           min: get(r, i.min) || (use === 'dryhop' ? '0' : '60'), temp: get(r, i.temp) || (use === 'hopstand' ? '80' : '100'),

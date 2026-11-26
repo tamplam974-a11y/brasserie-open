@@ -47,3 +47,15 @@ describe('BeerXML', () => {
   });
 });
 
+
+describe('BeerXML et mash hopping', () => {
+  it('exporte et relit un houblon d’empâtage', () => {
+    const d = defaultRecipe('Mash hop');
+    d.hrows.push({ id: 'saaz', grams: '20', aa: '3,5', use: 'mash', min: '60', temp: '66' });
+    const xml = recipeToBeerXml(d);
+    expect(xml).toContain('<USE>Mash</USE>');
+    const [back] = parseBeerXml(xml)!;
+    expect(back.hrows[2].use).toBe('mash');
+    expect(back.hrows[2].min).toBe('60');
+  });
+});

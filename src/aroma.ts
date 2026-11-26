@@ -28,12 +28,13 @@ export function familyOf(descriptor: string): Family | null {
   return null;
 }
 
-export interface AromaHop { aroma: string; grams: number; use: 'boil' | 'fwh' | 'hopstand' | 'dryhop'; min: number }
+export interface AromaHop { aroma: string; grams: number; use: 'boil' | 'fwh' | 'hopstand' | 'dryhop' | 'mash'; min: number }
 
 /** Poids d’une addition pour l’arôme : le dry hop et le hopstand comptent pleinement, l’ébullition longue très peu. */
 export function aromaWeight(h: AromaHop): number {
   if (h.use === 'dryhop' || h.use === 'hopstand') return h.grams;
   if (h.use === 'fwh') return h.grams * 0.15;
+  if (h.use === 'mash') return h.grams * 0.2;
   return h.grams * Math.max(0.05, 1 - h.min / 60);
 }
 

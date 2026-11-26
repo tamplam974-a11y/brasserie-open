@@ -10,7 +10,8 @@ export function boilSchedule(d: RecipeState): { when: string; what: string }[] {
   for (const h of d.hrows) {
     const g = `${h.grams} g ${HOPS.find((x) => x.id === h.id)?.name ?? h.id}`;
     const m = num(h.min) || 0;
-    if (h.use === 'fwh') rows.push({ at: -1, when: 'Avant l’ébullition (premier moût)', what: g });
+    if (h.use === 'mash') rows.push({ at: -2, when: 'Dans l’empâtage', what: `${g} (${m} min)` });
+    else if (h.use === 'fwh') rows.push({ at: -1, when: 'Avant l’ébullition (premier moût)', what: g });
     else if (h.use === 'boil') {
       const at = Math.max(0, total - Math.min(m, total));
       rows.push({ at, when: `${at} min`, what: `${g} (${m} min d’ébullition)` });

@@ -142,3 +142,6 @@ Application installable (PWA) : manifeste, icônes (192, 512, adaptable, Apple),
 
 ## v0.35
 Le tri choisi dans Mes recettes (ordre manuel, nom, numéro, alcool…) est mémorisé et appliqué aussi à la liste déroulante « Liste » de la recette (recipeSort.ts). 15 styles ajoutés : American Amber, Belgian Dubbel, Tripel, Dark Strong, Blond, Irish Red, Foreign Extra Stout, British Brown, Wee Heavy, Rauchbier, Flanders Red, Belgian IPA, Black IPA, Rye IPA, Braggot (indicatif). L’ancien alias 15A vers Weissbier est supprimé : 15A est maintenant Irish Red Ale.
+
+## v0.36
+Houblons : usage « Mash hopping » (houblon ajouté à l’empâtage). Amertume = 20 % de celle du même houblon bouilli aussi longtemps (MASH_FACTOR, réglage par défaut de BeerSmith), arôme à 20 % du poids ; présent dans la fiche de brassage (« Dans l’empâtage »), le BeerXML (USE Mash) et le CSV. Comparaison des IBU avec BeerSmith, Brewfather et Little Bock : Brasserie Open est à 1-2 % de BeerSmith à alpha égal.
