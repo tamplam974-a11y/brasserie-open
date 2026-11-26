@@ -145,3 +145,6 @@ Le tri choisi dans Mes recettes (ordre manuel, nom, numéro, alcool…) est mém
 
 ## v0.36
 Houblons : usage « Mash hopping » (houblon ajouté à l’empâtage). Amertume = 20 % de celle du même houblon bouilli aussi longtemps (MASH_FACTOR, réglage par défaut de BeerSmith), arôme à 20 % du poids ; présent dans la fiche de brassage (« Dans l’empâtage »), le BeerXML (USE Mash) et le CSV. Comparaison des IBU avec BeerSmith, Brewfather et Little Bock : Brasserie Open est à 1-2 % de BeerSmith à alpha égal.
+
+## v0.37
+Onglet « Recette » renommé « Accueil ». Appel rapide des ingrédients (malts, houblons, levure) : liste complète défilante, flèche indiquant que le champ est cherchable ; test automatique du clavier et du clic pour les trois (picker.test.tsx).

@@ -12,7 +12,7 @@ const USE: Record<string, string> = { boil: 'Ébullition', fwh: 'FWH', hopstand:
 /** Fiche de brassage imprimable, tirée de la recette en cours dans l’éditeur. */
 export default function BrewSheet({ recipe: d }: { recipe: RecipeState | null }) {
   if (!d) {
-    return <div className="wide"><section><h2>Fiche de brassage</h2><p className="hint">Ouvrez d’abord une recette dans l’onglet Recette.</p></section></div>;
+    return <div className="wide"><section><h2>Fiche de brassage</h2><p className="hint">Ouvrez d’abord une recette dans l’onglet Accueil.</p></section></div>;
   }
   const r = compute(d);
   const { water, strikeC } = computeWater(d);

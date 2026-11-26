@@ -108,12 +108,12 @@ function Picker<T extends { id: string; name: string; brand?: string }>(p: {
   const [q, setQ] = useState<string | null>(null);
   const [hi, setHi] = useState(0);
   const plain = (t: string) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  const found = q === null ? [] : p.items.filter((x) => plain(`${x.brand ?? ''} ${x.name}`).includes(plain(q))).slice(0, q ? 12 : 30);
+  const found = q === null ? [] : p.items.filter((x) => plain(`${x.brand ?? ''} ${x.name}`).includes(plain(q))).slice(0, 120);
   const pick = (x: T, input: HTMLElement | null) => { p.onPick(x.id); setQ(null); input?.blur(); };
   return (
     <div className="picker">
       <input
-        role="combobox" aria-expanded={q !== null} aria-label={p.label} placeholder="Tapez pour chercher…"
+        role="combobox" aria-expanded={q !== null} aria-label={p.label} placeholder="Tapez pour chercher…" title="Cliquez, puis tapez quelques lettres pour chercher"
         value={q ?? current?.name ?? ''}
         onFocus={(e) => { setQ(''); setHi(0); e.target.select(); }}
         onChange={(e) => { setQ(e.target.value); setHi(0); }}

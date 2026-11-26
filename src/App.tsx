@@ -230,7 +230,7 @@ interface Req { id: string; n: number }
 interface Ctx { openReq: Req | null; delReq: Req | null; ordReq: { ids: string[]; n: number } | null; impReq: { recipes: RecipeState[]; n: number } | null; importRecipes: (ds: RecipeState[]) => void; open: (id: string) => void; remove: (id: string) => void; reorder: (ids: string[]) => void; bump: () => void; sort: Sort; setSort: (s: Sort) => void; setCurrent: (d: RecipeState) => void; current: () => RecipeState | null }
 
 const TOOLS: { id: string; label: string; view: (c: Ctx) => ReactElement }[] = [
-  { id: 'recette', label: 'Recette', view: (c) => <RecipeBuilder openRequest={c.openReq} deleteRequest={c.delReq} reorderRequest={c.ordReq} importRequest={c.impReq} sort={c.sort} onLibraryChange={c.bump} onSnapshot={c.setCurrent} /> },
+  { id: 'recette', label: 'Accueil', view: (c) => <RecipeBuilder openRequest={c.openReq} deleteRequest={c.delReq} reorderRequest={c.ordReq} importRequest={c.impReq} sort={c.sort} onLibraryChange={c.bump} onSnapshot={c.setCurrent} /> },
   { id: 'recettes', label: 'Mes recettes', view: (c) => <Recipes onOpen={c.open} onDelete={c.remove} onReorder={c.reorder} onImport={c.importRecipes} sort={c.sort} onSort={c.setSort} /> },
   { id: 'ingredients', label: 'Ingrédients', view: () => <Ingredients /> },
   { id: 'houblons', label: 'Houblons', view: () => <HopsTab /> },
