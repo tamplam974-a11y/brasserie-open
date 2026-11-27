@@ -1,6 +1,7 @@
 import { HOPS, MALTS, YEASTS, restoreHop, restoreMalt, restoreYeast } from './data/ingredients';
 import { STYLES, upsertStyles } from './data/styles';
 import { calcRecipe, mashWater, strikeTemperature, type RecipeResult } from './engine';
+import { settings } from './settings';
 
 export interface MaltRow { id: string; kg: string; ebc?: string }
 export interface HopRow { id: string; grams: string; aa: string; use: 'boil' | 'fwh' | 'hopstand' | 'dryhop' | 'mash'; min: string; temp: string }
@@ -103,8 +104,12 @@ export function compute(d: RecipeState): RecipeResult | null {
   const V = num(d.vol), E = num(d.eff);
   if (!(V > 0 && E > 0)) return null;
   const yeast = YEASTS.find((y) => y.id === d.yeastId) ?? YEASTS[0];
+  const { water } = computeWater(d);
+  const loss = num(d.water.loss);
+  const preBoilRatio = water && Number.isFinite(loss) && water.preBoilL > 0 ? Math.min(1, (V + loss) / water.preBoilL) : 1;
   return calcRecipe({
     volumeL: V, efficiencyPct: E, yeastAttenuationPct: yeast.attenuationPct,
+    calibration: { pelletPct: settings.pelletPct, fwhPct: settings.fwhPct, gravityMode: settings.gravityMode, preBoilRatio },
     malts: d.mrows.map((m) => {
       const x = MALTS.find((k) => k.id === m.id);
       const ov = num(m.ebc ?? '');

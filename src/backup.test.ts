@@ -52,3 +52,15 @@ describe('sauvegarde', () => {
     expect(dst.get(KEYS.styles).map((s: { name: string }) => s.name)).toEqual(['Local', 'Nouveau']);
   });
 });
+
+describe('sauvegarde du stock et des réglages', () => {
+  it('fusionne les lots par identifiant et garde les réglages existants', () => {
+    const src = makeBackup(memory({ [KEYS.stock]: { malts: [{ id: 'l1', initial: '5' }, { id: 'l2', initial: '1' }], hops: [{ id: 'h1' }] }, [KEYS.settings]: { pelletPct: 10 } }).store.read);
+    expect(summarize(src).lots).toBe(3);
+    const dst = memory({ [KEYS.stock]: { malts: [{ id: 'l1', initial: '9' }], hops: [] }, [KEYS.settings]: { pelletPct: 0 } });
+    applyBackup(src, 'merge', dst.store);
+    expect(dst.get(KEYS.stock).malts.map((l: { id: string; initial: string }) => `${l.id}:${l.initial}`)).toEqual(['l1:9', 'l2:1']);
+    expect(dst.get(KEYS.stock).hops).toHaveLength(1);
+    expect(dst.get(KEYS.settings)).toEqual({ pelletPct: 0 });
+  });
+});

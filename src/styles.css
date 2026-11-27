@@ -301,3 +301,10 @@ tr.over td { box-shadow: inset 0 2px 0 var(--accent); }
 /* v0.37 : champ de recherche des ingrédients reconnaissable (flèche) */
 .picker::after { content: '▾'; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; font-size: .8rem; }
 .inputs .row .picker input { padding-right: 20px; }
+
+/* v0.38 : stock */
+.stkwrap { overflow-x: auto; }
+.row.stk { grid-template-columns: minmax(0, 1.6fr) 72px 140px 104px 96px 84px 22px; gap: 5px; align-items: center; min-width: 790px; }
+.row.stk.head { font-size: .72rem; color: var(--muted); align-items: end; line-height: 1.15; }
+.row.stk input { padding: 5px 6px; }
+.neg { color: #c2410c !important; font-weight: 600; }

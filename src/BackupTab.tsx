@@ -5,7 +5,7 @@ import { downloadText } from './download';
 const store: Store = { read: (k) => localStorage.getItem(k), write: (k, v) => localStorage.setItem(k, v) };
 
 const line = (s: ReturnType<typeof summarize>) =>
-  `${s.recipes} recette(s), ${s.malts} malt(s), ${s.hops} houblon(s), ${s.yeasts} levure(s), ${s.styles} style(s) personnalisé(s), ${s.readings} relevé(s) de densimètre`;
+  `${s.recipes} recette(s), ${s.malts} malt(s), ${s.hops} houblon(s), ${s.yeasts} levure(s), ${s.styles} style(s) personnalisé(s), ${s.readings} relevé(s) de densimètre, ${s.lots} lot(s) en stock`;
 
 /** Sauvegarde et transfert de toutes les données entre navigateurs ou entre la version locale et la version en ligne. */
 export default function BackupTab() {

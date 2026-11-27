@@ -148,3 +148,6 @@ Houblons : usage « Mash hopping » (houblon ajouté à l’empâtage). Amertume
 
 ## v0.37
 Onglet « Recette » renommé « Accueil ». Appel rapide des ingrédients (malts, houblons, levure) : liste complète défilante, flèche indiquant que le champ est cherchable ; test automatique du clavier et du clic pour les trois (picker.test.tsx).
+
+## v0.38
+Réglages de calibrage de l’amertume (onglet Réglages) : bonus granulés, bonus du premier moût, densité utilisée dans Tinseth (initiale, moyenne, avant ébullition), avec réglages « BeerSmith », « Little Bock (approx.) » et « Brewfather (approx.) » ajustés sur une recette comparée. Onglet Stock : lots de malts (kg) et de houblons (g) avec EBC ou AA, date d’achat, quantité initiale, retrait, solde ; retrait automatique de la recette en cours (premier entré, premier sorti). Stock et réglages inclus dans la sauvegarde.

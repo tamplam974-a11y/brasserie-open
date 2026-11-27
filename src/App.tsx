@@ -8,6 +8,8 @@ import BrewSheet from './BrewSheet';
 import Carbonation from './Carbonation';
 import Hydrometer from './Hydrometer';
 import BackupTab from './BackupTab';
+import StockTab from './StockTab';
+import SettingsTab from './SettingsTab';
 import { loadSort, saveSort, type Sort } from './recipeSort';
 import { LAST_BACKUP_KEY } from './backup';
 import type { RecipeState } from './library';
@@ -233,12 +235,14 @@ const TOOLS: { id: string; label: string; view: (c: Ctx) => ReactElement }[] = [
   { id: 'recette', label: 'Accueil', view: (c) => <RecipeBuilder openRequest={c.openReq} deleteRequest={c.delReq} reorderRequest={c.ordReq} importRequest={c.impReq} sort={c.sort} onLibraryChange={c.bump} onSnapshot={c.setCurrent} /> },
   { id: 'recettes', label: 'Mes recettes', view: (c) => <Recipes onOpen={c.open} onDelete={c.remove} onReorder={c.reorder} onImport={c.importRecipes} sort={c.sort} onSort={c.setSort} /> },
   { id: 'ingredients', label: 'Ingrédients', view: () => <Ingredients /> },
+  { id: 'stock', label: 'Stock', view: (c) => <StockTab recipe={c.current()} /> },
   { id: 'houblons', label: 'Houblons', view: () => <HopsTab /> },
   { id: 'styles', label: 'Styles', view: () => <StylesTab /> },
   { id: 'fiche', label: 'Fiche de brassage', view: (c) => <BrewSheet recipe={c.current()} /> },
   { id: 'carbo', label: 'Carbonatation', view: (c) => <Carbonation recipe={c.current()} /> },
   { id: 'densimetre', label: 'Densimètre', view: (c) => <Hydrometer recipe={c.current()} /> },
   { id: 'sauvegarde', label: 'Sauvegarde', view: () => <BackupTab /> },
+  { id: 'reglages', label: 'Réglages', view: (c) => <SettingsTab recipe={c.current()} onChange={c.bump} /> },
   { id: 'refracto', label: 'Réfractomètre', view: () => <Refractometer /> },
   { id: 'dilution', label: 'Dilution et concentration', view: () => <Dilution /> },
   { id: 'alcool', label: 'Taux d’alcool', view: () => <Alcohol /> },

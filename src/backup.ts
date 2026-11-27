@@ -5,6 +5,8 @@ export const KEYS = {
   ingredients: 'brasserie-open:ingredients',
   styles: 'brasserie-open:styles',
   hydrometer: 'brasserie-open:densimetre',
+  stock: 'brasserie-open:stock',
+  settings: 'brasserie-open:reglages',
 } as const;
 /** Date (en millisecondes) du dernier export complet, mémorisée pour le rappel en bas de page. */
 export const LAST_BACKUP_KEY = 'brasserie-open:derniere-sauvegarde';
@@ -38,6 +40,7 @@ export function summarize(b: Backup) {
     recipes: arr(obj(b.data.library).items).length,
     malts: arr(ing.malts).length, hops: arr(ing.hops).length, yeasts: arr(ing.yeasts).length,
     styles: arr(b.data.styles).length, readings: arr(b.data.hydrometer).length,
+    lots: arr(obj(b.data.stock).malts).length + arr(obj(b.data.stock).hops).length,
   };
 }
 
@@ -83,6 +86,16 @@ function mergeStyles(a: unknown, b: unknown) {
   return out;
 }
 
+function mergeStock(a: unknown, b: unknown) {
+  const A = obj(a), B = obj(b);
+  const merge = (x: unknown, y: unknown) => {
+    const out = [...arr(x)];
+    for (const l of arr(y)) if (typeof l.id === 'string' && !out.some((o) => o.id === l.id)) out.push(l);
+    return out;
+  };
+  return { malts: merge(A.malts, B.malts), hops: merge(A.hops, B.hops) };
+}
+
 function mergeReadings(a: unknown, b: unknown) {
   const byTime = new Map<number, Record<string, unknown>>();
   for (const r of [...arr(a), ...arr(b)]) if (typeof r.t === 'number') byTime.set(r.t, r);
@@ -102,4 +115,6 @@ export function applyBackup(b: Backup, mode: 'merge' | 'replace', store: Store):
   if (d.ingredients !== undefined) put(KEYS.ingredients, mergeIngredients(current(KEYS.ingredients), d.ingredients));
   if (d.styles !== undefined) put(KEYS.styles, mergeStyles(current(KEYS.styles), d.styles));
   if (d.hydrometer !== undefined) put(KEYS.hydrometer, mergeReadings(current(KEYS.hydrometer), d.hydrometer));
+  if (d.stock !== undefined) put(KEYS.stock, mergeStock(current(KEYS.stock), d.stock));
+  if (d.settings !== undefined && current(KEYS.settings) === undefined) put(KEYS.settings, d.settings);
 }
